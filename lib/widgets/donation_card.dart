@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../models/donation.dart';
 
 class DonationCard extends StatelessWidget {
-  const DonationCard({super.key});
+  final Donation donation;
+
+  const DonationCard({super.key, required this.donation});
 
   @override
   Widget build(BuildContext context) {
+    final currencyFormatter = NumberFormat.currency(
+      locale: 'ja_JP',
+      symbol: '¥',
+    );
+    final dateFormatter = DateFormat('yyyy/MM/dd');
+
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
@@ -24,18 +34,18 @@ class DonationCard extends StatelessWidget {
             size: 20,
           ),
         ),
-        title: const Text(
-          '北海道 紋別市',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          donation.municipality,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text('オホーツク海産ホタテ玉冷大'),
+            Text(donation.productName),
             const SizedBox(height: 4),
             Text(
-              '2024/01/15',
+              dateFormatter.format(donation.date),
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -43,9 +53,9 @@ class DonationCard extends StatelessWidget {
             ),
           ],
         ),
-        trailing: const Text(
-          '¥ 12,000',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        trailing: Text(
+          currencyFormatter.format(donation.amount),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'screens/dashboard_screen.dart';
 import 'screens/donation_list_screen.dart';
 import 'screens/application_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/add_donation_screen.dart';
 import 'widgets/scaffold_with_navbar.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -43,6 +44,14 @@ final router = GoRouter(
               path: '/donations',
               builder: (BuildContext context, GoRouterState state) =>
                   const DonationListScreen(),
+              routes: [
+                GoRoute(
+                  path: 'add',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (BuildContext context, GoRouterState state) =>
+                      const AddDonationScreen(),
+                ),
+              ],
             ),
           ],
         ),

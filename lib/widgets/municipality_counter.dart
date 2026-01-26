@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 
 class MunicipalityCounter extends StatelessWidget {
-  const MunicipalityCounter({super.key});
+  final int count;
+  final int maxCount;
+
+  const MunicipalityCounter({
+    super.key,
+    required this.count,
+    this.maxCount = 5,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isSafe = count <= maxCount;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -46,9 +55,9 @@ class MunicipalityCounter extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                     children: [
-                      const TextSpan(text: '3'),
+                      TextSpan(text: '$count'),
                       TextSpan(
-                        text: ' / 5',
+                        text: ' / $maxCount',
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 16,
@@ -63,13 +72,13 @@ class MunicipalityCounter extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
+              color: (isSafe ? Colors.green : Colors.orange).withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
-              'ワンストップOK',
+            child: Text(
+              isSafe ? 'ワンストップOK' : '要確定申告',
               style: TextStyle(
-                color: Colors.green,
+                color: isSafe ? Colors.green : Colors.orange,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),

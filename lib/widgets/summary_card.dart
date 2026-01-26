@@ -1,10 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class SummaryCard extends StatelessWidget {
-  const SummaryCard({super.key});
+  final int totalAmount;
+  final int maxAmount;
+
+  const SummaryCard({
+    super.key,
+    required this.totalAmount,
+    this.maxAmount = 80000,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final currencyFormatter = NumberFormat.currency(
+      locale: 'ja_JP',
+      symbol: '¥',
+    );
+    final remainingAmount = maxAmount - totalAmount;
+    final progress = (totalAmount / maxAmount).clamp(0.0, 1.0);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -41,9 +56,9 @@ class SummaryCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Text(
-                '¥ 45,000',
-                style: TextStyle(
+              Text(
+                currencyFormatter.format(totalAmount),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -52,7 +67,7 @@ class SummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '/ ¥ 80,000',
+                '/ ${currencyFormatter.format(maxAmount)}',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.7),
                   fontSize: 16,
@@ -73,9 +88,9 @@ class SummaryCard extends StatelessWidget {
                     '残り枠',
                     style: TextStyle(color: Colors.white.withOpacity(0.9)),
                   ),
-                  const Text(
-                    '¥ 35,000',
-                    style: TextStyle(
+                  Text(
+                    currencyFormatter.format(remainingAmount),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -85,11 +100,11 @@ class SummaryCard extends StatelessWidget {
               const SizedBox(height: 8),
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: const LinearProgressIndicator(
-                  value: 45000 / 80000,
+                child: LinearProgressIndicator(
+                  value: progress,
                   minHeight: 8,
                   backgroundColor: Colors.white24,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               ),
             ],
