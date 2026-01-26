@@ -1,10 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../models/donation.dart';
 
 class ApplicationStatusCard extends StatelessWidget {
-  const ApplicationStatusCard({super.key});
+  final Donation donation;
+  final ValueChanged<OneStopStatus> onStatusChanged;
+
+  const ApplicationStatusCard({
+    super.key,
+    required this.donation,
+    required this.onStatusChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final dateFormatter = DateFormat('yyyy/MM/dd');
+
+    Color statusColor;
+    String statusText;
+    switch (donation.status) {
+      case OneStopStatus.completed:
+        statusColor = Colors.green;
+        statusText = '完了';
+        break;
+      case OneStopStatus.sent:
+        statusColor = Colors.blue;
+        statusText = '送付済';
+        break;
+      case OneStopStatus.notRequired:
+        statusColor = Colors.grey;
+        statusText = '対象外';
+        break;
+      case OneStopStatus.pending:
+        statusColor = Theme.of(context).colorScheme.error;
+        statusText = '未完了';
+        break;
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -29,12 +61,15 @@ class ApplicationStatusCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '北海道 紋別市',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  Text(
+                    donation.municipality,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   Text(
-                    '寄付日: 2024/01/15',
+                    '寄付日: ${dateFormatter.format(donation.date)}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -48,15 +83,15 @@ class ApplicationStatusCard extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.errorContainer,
+                  color: statusColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '未完了',
+                  statusText,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onErrorContainer,
+                    color: statusColor,
                   ),
                 ),
               ),
@@ -66,8 +101,21 @@ class ApplicationStatusCard extends StatelessWidget {
           LayoutBuilder(
             builder: (context, constraints) {
               return ToggleButtons(
-                isSelected: const [true, false, false],
-                onPressed: (index) {},
+                isSelected: [
+                  donation.status == OneStopStatus.pending,
+                  donation.status == OneStopStatus.sent,
+                  donation.status == OneStopStatus.completed,
+                ],
+                onPressed: (index) {
+                  final newStatus = [
+                    OneStopStatus.pending,
+                    OneStopStatus.sent,
+                    OneStopStatus.completed,
+                  ][index];
+                  if (newStatus != donation.status) {
+                    onStatusChanged(newStatus);
+                  }
+                },
                 borderRadius: BorderRadius.circular(8),
                 constraints: BoxConstraints.expand(
                   width: (constraints.maxWidth - 4) / 3,

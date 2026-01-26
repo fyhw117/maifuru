@@ -1,5 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+enum OneStopStatus {
+  pending, // 未着手
+  sent, // 送付済
+  completed, // 完了
+  notRequired, // 不要
+}
+
 class Donation {
   final String id;
   final String municipality;
@@ -7,7 +14,7 @@ class Donation {
   final int amount;
   final DateTime date;
   final String? note;
-  // TODO: Add fields for One-stop application status later if needed
+  final OneStopStatus status;
 
   Donation({
     required this.id,
@@ -16,6 +23,7 @@ class Donation {
     required this.amount,
     required this.date,
     this.note,
+    this.status = OneStopStatus.pending,
   });
 
   factory Donation.fromFirestore(DocumentSnapshot doc) {
@@ -27,6 +35,10 @@ class Donation {
       amount: data['amount'] ?? 0,
       date: (data['date'] as Timestamp).toDate(),
       note: data['note'],
+      status: OneStopStatus.values.firstWhere(
+        (e) => e.name == (data['status'] ?? 'pending'),
+        orElse: () => OneStopStatus.pending,
+      ),
     );
   }
 
@@ -37,6 +49,27 @@ class Donation {
       'amount': amount,
       'date': Timestamp.fromDate(date),
       'note': note,
+      'status': status.name,
     };
+  }
+
+  Donation copyWith({
+    String? id,
+    String? municipality,
+    String? productName,
+    int? amount,
+    DateTime? date,
+    String? note,
+    OneStopStatus? status,
+  }) {
+    return Donation(
+      id: id ?? this.id,
+      municipality: municipality ?? this.municipality,
+      productName: productName ?? this.productName,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      note: note ?? this.note,
+      status: status ?? this.status,
+    );
   }
 }
