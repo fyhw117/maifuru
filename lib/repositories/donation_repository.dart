@@ -1,10 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/donation.dart';
 
 class DonationRepository {
-  final CollectionReference _collection = FirebaseFirestore.instance.collection(
-    'donations',
-  );
+  String? get _userId => FirebaseAuth.instance.currentUser?.uid;
+
+  CollectionReference get _collection {
+    if (_userId == null) {
+      throw Exception('User must be logged in to access donations');
+    }
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(_userId)
+        .collection('donations');
+  }
 
   Stream<List<Donation>> getDonations() {
     return _collection.orderBy('date', descending: true).snapshots().map((

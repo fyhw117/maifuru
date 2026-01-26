@@ -7,16 +7,37 @@ import 'screens/settings_screen.dart';
 import 'screens/add_donation_screen.dart';
 import 'widgets/scaffold_with_navbar.dart';
 
+import 'services/auth_service.dart';
+import 'screens/login_screen.dart';
+
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
 );
 final GlobalKey<NavigatorState> _sectionANavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'sectionANav');
 
+final authService = AuthService();
+
 final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
+  refreshListenable: authService,
+  redirect: (context, state) {
+    final isLoggedIn = authService.isAuthenticated;
+    final isLoggingIn = state.matchedLocation == '/login';
+
+    if (!isLoggedIn && !isLoggingIn) {
+      return '/login';
+    }
+
+    if (isLoggedIn && isLoggingIn) {
+      return '/';
+    }
+
+    return null;
+  },
   routes: <RouteBase>[
+    GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     StatefulShellRoute.indexedStack(
       builder:
           (

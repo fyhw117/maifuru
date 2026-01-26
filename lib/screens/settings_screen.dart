@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -22,7 +23,9 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('ログアウト', style: TextStyle(color: Colors.red)),
-            onTap: () {},
+            onTap: () async {
+              await AuthService().signOut();
+            },
           ),
         ],
       ),
