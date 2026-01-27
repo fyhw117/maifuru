@@ -5,7 +5,9 @@ import '../models/donation.dart';
 import '../repositories/donation_repository.dart';
 
 class AddDonationScreen extends StatefulWidget {
-  const AddDonationScreen({super.key});
+  final Donation? donation;
+
+  const AddDonationScreen({super.key, this.donation});
 
   @override
   State<AddDonationScreen> createState() => _AddDonationScreenState();
@@ -16,9 +18,20 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
   final _municipalityController = TextEditingController();
   final _productNameController = TextEditingController();
   final _amountController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate;
   final _repository = DonationRepository();
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.donation?.date ?? DateTime.now();
+    if (widget.donation != null) {
+      _municipalityController.text = widget.donation!.municipality;
+      _productNameController.text = widget.donation!.productName;
+      _amountController.text = widget.donation!.amount.toString();
+    }
+  }
 
   @override
   void dispose() {
@@ -50,14 +63,19 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
 
       try {
         final donation = Donation(
-          id: '', // Firestore will generate ID
+          id: widget.donation?.id ?? '', // Use existing ID if editing
           municipality: _municipalityController.text,
           productName: _productNameController.text,
           amount: int.parse(_amountController.text),
           date: _selectedDate,
+          status: widget.donation?.status ?? OneStopStatus.pending,
         );
 
-        await _repository.addDonation(donation);
+        if (widget.donation != null) {
+          await _repository.updateDonation(donation);
+        } else {
+          await _repository.addDonation(donation);
+        }
 
         if (mounted) {
           context.pop();
@@ -81,10 +99,69 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
     }
   }
 
+  Future<void> _deleteDonation() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('削除の確認'),
+          content: const Text('この寄付記録を削除してもよろしいですか？'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('キャンセル'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: const Text('削除'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        await _repository.deleteDonation(widget.donation!.id);
+        if (mounted) {
+          context.pop();
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('寄付を削除しました')));
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('エラーが発生しました: $e')));
+        }
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('寄付を追加')),
+      appBar: AppBar(
+        title: Text(widget.donation != null ? '寄付を編集' : '寄付を追加'),
+        actions: [
+          if (widget.donation != null)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _deleteDonation,
+            ),
+        ],
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

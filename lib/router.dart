@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'models/donation.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/donation_list_screen.dart';
 import 'screens/application_screen.dart';
@@ -71,6 +72,14 @@ final router = GoRouter(
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (BuildContext context, GoRouterState state) =>
                       const AddDonationScreen(),
+                ),
+                GoRoute(
+                  path: 'edit',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (BuildContext context, GoRouterState state) {
+                    final donation = state.extra as Donation;
+                    return AddDonationScreen(donation: donation);
+                  },
                 ),
               ],
             ),
