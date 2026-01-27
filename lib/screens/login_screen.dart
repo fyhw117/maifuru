@@ -25,6 +25,34 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  Future<void> _sendPasswordResetEmail() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('リセットメール送信のため、メールアドレスを入力してください')),
+      );
+      return;
+    }
+
+    try {
+      await _authService.sendPasswordResetEmail(email);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('パスワードリセットメールを送信しました')));
+      }
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'エラーが発生しました'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _submit() async {
     setState(() {
       _isLoading = true;
@@ -111,6 +139,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 obscureText: !_isPasswordVisible,
               ),
+              if (_isLogin)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _sendPasswordResetEmail,
+                    child: const Text('パスワードをお忘れですか？'),
+                  ),
+                ),
               const SizedBox(height: 24),
               if (_isLoading)
                 const Center(child: CircularProgressIndicator())

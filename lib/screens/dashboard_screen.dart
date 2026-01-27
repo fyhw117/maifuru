@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/donation.dart';
 import '../repositories/donation_repository.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/municipality_counter.dart';
+import '../services/settings_service.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -10,6 +12,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repository = DonationRepository();
+    final settingsService = context.watch<SettingsService>();
 
     return Scaffold(
       appBar: AppBar(
@@ -27,11 +30,17 @@ class DashboardScreen extends StatelessWidget {
           }
 
           final donations = snapshot.data ?? [];
-          final totalAmount = donations.fold<int>(
+          final currentYear = DateTime.now().year;
+          // Filter donations for the current year
+          final thisYearDonations = donations
+              .where((d) => d.date.year == currentYear)
+              .toList();
+
+          final totalAmount = thisYearDonations.fold<int>(
             0,
             (sum, donation) => sum + donation.amount,
           );
-          final uniqueMunicipalities = donations
+          final uniqueMunicipalities = thisYearDonations
               .map((d) => d.municipality)
               .toSet()
               .length;
@@ -41,7 +50,11 @@ class DashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SummaryCard(totalAmount: totalAmount),
+                SummaryCard(
+                  totalAmount: totalAmount,
+                  maxAmount: settingsService.maxDonationAmount,
+                  year: currentYear,
+                ),
                 const SizedBox(height: 24),
                 Text(
                   '自治体カウンター',

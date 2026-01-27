@@ -4,11 +4,13 @@ import 'package:intl/intl.dart';
 class SummaryCard extends StatelessWidget {
   final int totalAmount;
   final int maxAmount;
+  final int year;
 
   const SummaryCard({
     super.key,
     required this.totalAmount,
     this.maxAmount = 80000,
+    required this.year,
   });
 
   @override
@@ -45,7 +47,7 @@ class SummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '今年の寄付状況',
+            '$year年の寄付状況',
             style: TextStyle(
               color: Colors.white.withOpacity(0.9),
               fontSize: 14,

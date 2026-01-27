@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import '../services/settings_service.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -10,6 +13,9 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('設定')),
       body: ListView(
         children: [
+          _buildSectionHeader(context, '目標設定'),
+          _buildMaxAmountSetting(context),
+          const SizedBox(height: 24),
           _buildSectionHeader(context, 'シミュレーター'),
           _buildSimulatorCard(context),
           const SizedBox(height: 24),
@@ -92,6 +98,71 @@ class SettingsScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMaxAmountSetting(BuildContext context) {
+    final settingsService = context.watch<SettingsService>();
+    final currencyFormatter = NumberFormat.currency(
+      locale: 'ja_JP',
+      symbol: '¥',
+      decimalDigits: 0,
+    );
+
+    return ListTile(
+      leading: const Icon(Icons.savings_outlined),
+      title: const Text('今年の寄付上限額'),
+      subtitle: Text(
+        currencyFormatter.format(settingsService.maxDonationAmount),
+      ),
+      trailing: const Icon(Icons.edit_outlined),
+      onTap: () async {
+        await _showMaxAmountDialog(context, settingsService);
+      },
+    );
+  }
+
+  Future<void> _showMaxAmountDialog(
+    BuildContext context,
+    SettingsService settingsService,
+  ) async {
+    final controller = TextEditingController(
+      text: settingsService.maxDonationAmount.toString(),
+    );
+
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('上限額を設定'),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: '金額',
+              suffixText: '円',
+              border: OutlineInputBorder(),
+            ),
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('キャンセル'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final newValue = int.tryParse(controller.text);
+                if (newValue != null && newValue >= 0) {
+                  settingsService.setMaxDonationAmount(newValue);
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('保存'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
