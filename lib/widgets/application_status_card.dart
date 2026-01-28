@@ -2,15 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/donation.dart';
 
-class ApplicationStatusCard extends StatelessWidget {
+class ApplicationStatusCard extends StatefulWidget {
   final Donation donation;
   final ValueChanged<OneStopStatus> onStatusChanged;
+  final ValueChanged<String>? onNoteChanged;
 
   const ApplicationStatusCard({
     super.key,
     required this.donation,
     required this.onStatusChanged,
+    this.onNoteChanged,
   });
+
+  @override
+  State<ApplicationStatusCard> createState() => _ApplicationStatusCardState();
+}
+
+class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
+  late TextEditingController _noteController;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _noteController = TextEditingController(text: widget.donation.note);
+  }
+
+  @override
+  void didUpdateWidget(covariant ApplicationStatusCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Only update the controller text if the widget is NOT focused.
+    // This prevents the cursor/IME state from breaking due to Firestore stream updates
+    // triggered by our own edits.
+    if (oldWidget.donation.note != widget.donation.note &&
+        !_focusNode.hasFocus) {
+      _noteController.text = widget.donation.note ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +53,7 @@ class ApplicationStatusCard extends StatelessWidget {
 
     Color statusColor;
     String statusText;
-    switch (donation.status) {
+    switch (widget.donation.status) {
       case OneStopStatus.completed:
         statusColor = Colors.green;
         statusText = '完了';
@@ -62,14 +97,14 @@ class ApplicationStatusCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    donation.municipality,
+                    widget.donation.municipality,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   Text(
-                    '寄付日: ${dateFormatter.format(donation.date)}',
+                    '寄付日: ${dateFormatter.format(widget.donation.date)}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -102,9 +137,9 @@ class ApplicationStatusCard extends StatelessWidget {
             builder: (context, constraints) {
               return ToggleButtons(
                 isSelected: [
-                  donation.status == OneStopStatus.pending,
-                  donation.status == OneStopStatus.sent,
-                  donation.status == OneStopStatus.completed,
+                  widget.donation.status == OneStopStatus.pending,
+                  widget.donation.status == OneStopStatus.sent,
+                  widget.donation.status == OneStopStatus.completed,
                 ],
                 onPressed: (index) {
                   final newStatus = [
@@ -112,8 +147,8 @@ class ApplicationStatusCard extends StatelessWidget {
                     OneStopStatus.sent,
                     OneStopStatus.completed,
                   ][index];
-                  if (newStatus != donation.status) {
-                    onStatusChanged(newStatus);
+                  if (newStatus != widget.donation.status) {
+                    widget.onStatusChanged(newStatus);
                   }
                 },
                 borderRadius: BorderRadius.circular(8),
@@ -133,6 +168,23 @@ class ApplicationStatusCard extends StatelessWidget {
                 selectedBorderColor: Theme.of(context).colorScheme.primary,
                 children: const [Text('未着手'), Text('送付済'), Text('完了')],
               );
+            },
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _noteController,
+            focusNode: _focusNode,
+            decoration: const InputDecoration(
+              hintText: 'メモを入力...',
+              prefixIcon: Icon(Icons.edit_note, size: 20),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+              isDense: true,
+            ),
+            style: const TextStyle(fontSize: 13),
+            maxLines: null,
+            onChanged: (value) {
+              widget.onNoteChanged?.call(value);
             },
           ),
         ],

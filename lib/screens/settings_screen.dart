@@ -4,8 +4,39 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../services/settings_service.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final _incomeController = TextEditingController();
+  String? _selectedFamilyStructure;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize values from settings
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final settings = context.read<SettingsService>();
+      if (settings.income != null) {
+        _incomeController.text = settings.income.toString();
+      }
+      if (settings.familyStructure != null) {
+        setState(() {
+          _selectedFamilyStructure = settings.familyStructure;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _incomeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +52,16 @@ class SettingsScreen extends StatelessWidget {
           const SizedBox(height: 24),
           _buildSectionHeader(context, 'アカウント'),
           ListTile(
-            leading: const Icon(Icons.person_outline),
-            title: const Text('プロフィール設定'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('ログアウト', style: TextStyle(color: Colors.red)),
+            leading: const Icon(Icons.logout),
+            title: const Text('ログアウト'),
             onTap: () async {
               await AuthService().signOut();
             },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete_forever, color: Colors.red),
+            title: const Text('アカウント削除', style: TextStyle(color: Colors.red)),
+            onTap: () => _showDeleteAccountDialog(context),
           ),
         ],
       ),
@@ -74,29 +104,114 @@ class SettingsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextFormField(
+              controller: _incomeController,
               decoration: const InputDecoration(
                 labelText: '年収 (万円)',
                 border: OutlineInputBorder(),
                 suffixText: '万円',
               ),
               keyboardType: TextInputType.number,
+              onChanged: (value) {
+                final income = int.tryParse(value);
+                if (income != null) {
+                  context.read<SettingsService>().setIncome(income);
+                }
+              },
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
+              value: _selectedFamilyStructure,
               decoration: const InputDecoration(
                 labelText: '家族構成',
                 border: OutlineInputBorder(),
               ),
               items: const [
                 DropdownMenuItem(value: 'single', child: Text('独身・共働き')),
-                DropdownMenuItem(value: 'married', child: Text('夫婦 (配偶者控除なし)')),
+                DropdownMenuItem(value: 'married', child: Text('夫婦 (配偶者控除あり)')),
               ],
-              onChanged: (value) {},
+              onChanged: (value) {
+                setState(() {
+                  _selectedFamilyStructure = value;
+                });
+                if (value != null) {
+                  context.read<SettingsService>().setFamilyStructure(value);
+                }
+              },
             ),
             const SizedBox(height: 16),
-            FilledButton(onPressed: () {}, child: const Text('計算する')),
+            FilledButton(
+              onPressed: () => _runSimulation(context),
+              child: const Text('計算する'),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _runSimulation(BuildContext context) {
+    final incomeStr = _incomeController.text;
+    final income = int.tryParse(incomeStr);
+
+    if (income == null || income <= 0) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('正しい年収を入力してください')));
+      return;
+    }
+
+    final settings = context.read<SettingsService>();
+    final result = settings.calculateEstimatedMaxDonation(
+      income,
+      _selectedFamilyStructure ?? 'single',
+    );
+
+    final formattedResult = NumberFormat.currency(
+      locale: 'ja_JP',
+      symbol: '¥',
+      decimalDigits: 0,
+    ).format(result);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('シミュレーション結果'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('あなたの寄付上限額の目安は'),
+            const SizedBox(height: 8),
+            Text(
+              formattedResult,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'です。\n※あくまで目安です。正確な金額は税理士やお住まいの自治体にご確認ください。',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('閉じる'),
+          ),
+          FilledButton(
+            onPressed: () {
+              context.read<SettingsService>().setMaxDonationAmount(result);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('上限額を $formattedResult に設定しました')),
+              );
+            },
+            child: const Text('設定に反映する'),
+          ),
+        ],
       ),
     );
   }
@@ -159,6 +274,46 @@ class SettingsScreen extends StatelessWidget {
                 }
               },
               child: const Text('保存'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showDeleteAccountDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('アカウント削除'),
+          content: const Text(
+            'アカウントを削除すると、すべてのデータが完全に消去され、復元することはできません。\n\n本当によろしいですか？',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('キャンセル'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () async {
+                Navigator.pop(context); // Close dialog
+                try {
+                  await context.read<AuthService>().deleteAccount();
+                  // Navigation to Login Screen is handled by auth state changes in main.dart
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('エラーが発生しました: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('削除する'),
             ),
           ],
         );

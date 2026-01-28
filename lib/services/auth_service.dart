@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
@@ -45,5 +46,27 @@ class AuthService extends ChangeNotifier {
   // Password Reset
   Future<void> sendPasswordResetEmail(String email) async {
     await _auth.sendPasswordResetEmail(email: email);
+  }
+
+  // Delete Account
+  Future<void> deleteAccount() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      try {
+        // Delete user data from Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .delete();
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error deleting user data: $e');
+        }
+      }
+
+      // Delete Auth account
+      // This might require recent login. The UI should handle re-authentication if this fails.
+      await user.delete();
+    }
   }
 }

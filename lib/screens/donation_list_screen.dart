@@ -48,7 +48,7 @@ class DonationListScreen extends StatelessWidget {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
             itemCount: donations.length,
             itemBuilder: (context, index) {
               return DonationCard(donation: donations[index]);
