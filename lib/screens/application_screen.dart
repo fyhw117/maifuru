@@ -18,7 +18,7 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
     final repository = DonationRepository();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('申請管理')),
+      appBar: AppBar(title: const Text('申請管理'), centerTitle: false),
       body: StreamBuilder<List<Donation>>(
         stream: repository.getDonations(),
         builder: (context, snapshot) {

@@ -23,13 +23,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final settingsService = context.watch<SettingsService>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ダッシュボード'),
-        centerTitle: false,
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-      ),
+      appBar: AppBar(title: const Text('ダッシュボード')),
       body: StreamBuilder<List<Donation>>(
         stream: repository.getDonations(),
         builder: (context, snapshot) {

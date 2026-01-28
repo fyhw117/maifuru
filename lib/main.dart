@@ -62,8 +62,10 @@ class MyApp extends StatelessWidget {
     return baseTheme.copyWith(
       textTheme: GoogleFonts.notoSansJpTextTheme(baseTheme.textTheme),
       appBarTheme: baseTheme.appBarTheme.copyWith(
-        centerTitle: true,
-        backgroundColor: Colors.transparent,
+        centerTitle: false,
+        backgroundColor: baseTheme.colorScheme.primary,
+        foregroundColor: baseTheme.colorScheme.onPrimary,
+        elevation: 0,
       ),
     );
   }

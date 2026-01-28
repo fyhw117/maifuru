@@ -12,15 +12,7 @@ class DonationListScreen extends StatelessWidget {
     final repository = DonationRepository();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('寄付履歴'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list_rounded),
-            onPressed: () {},
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('寄付履歴'), centerTitle: false),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           context.go('/donations/add');
