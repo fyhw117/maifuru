@@ -23,7 +23,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.list_alt_outlined),
             selectedIcon: Icon(Icons.list_alt_rounded),
-            label: '履歴',
+            label: '寄付管理',
           ),
           NavigationDestination(
             icon: Icon(Icons.assignment_turned_in_outlined),

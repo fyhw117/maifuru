@@ -12,13 +12,13 @@ class DonationListScreen extends StatelessWidget {
     final repository = DonationRepository();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('寄付履歴'), centerTitle: false),
+      appBar: AppBar(title: const Text('寄付管理'), centerTitle: false),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           context.go('/donations/add');
         },
         icon: const Icon(Icons.add_rounded),
-        label: const Text('記録を追加'),
+        label: const Text('寄付を登録'),
       ),
       body: StreamBuilder<List<Donation>>(
         stream: repository.getDonations(),
