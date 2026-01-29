@@ -51,7 +51,25 @@ class DonationCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 4),
-              Text(donation.productName),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      donation.productName,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (donation.productUrl != null &&
+                      donation.productUrl!.isNotEmpty) ...[
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.link,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ],
+                ],
+              ),
               const SizedBox(height: 4),
               Text(
                 dateFormatter.format(donation.date),

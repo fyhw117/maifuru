@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../models/donation.dart';
 import '../repositories/donation_repository.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AddDonationScreen extends StatefulWidget {
   final Donation? donation;
@@ -17,6 +18,7 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _municipalityController = TextEditingController();
   final _productNameController = TextEditingController();
+  final _productUrlController = TextEditingController();
   final _amountController = TextEditingController();
   late DateTime _selectedDate;
   final _repository = DonationRepository();
@@ -29,6 +31,7 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
     if (widget.donation != null) {
       _municipalityController.text = widget.donation!.municipality;
       _productNameController.text = widget.donation!.productName;
+      _productUrlController.text = widget.donation!.productUrl ?? '';
       _amountController.text = widget.donation!.amount.toString();
     }
   }
@@ -37,6 +40,7 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
   void dispose() {
     _municipalityController.dispose();
     _productNameController.dispose();
+    _productUrlController.dispose();
     _amountController.dispose();
     super.dispose();
   }
@@ -66,6 +70,9 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
           id: widget.donation?.id ?? '', // Use existing ID if editing
           municipality: _municipalityController.text,
           productName: _productNameController.text,
+          productUrl: _productUrlController.text.isEmpty
+              ? null
+              : _productUrlController.text,
           amount: int.parse(_amountController.text),
           date: _selectedDate,
           status: widget.donation?.status ?? OneStopStatus.pending,
@@ -198,6 +205,44 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
                           return '返礼品名を入力してください';
                         }
                         return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _productUrlController,
+                      decoration: InputDecoration(
+                        labelText: '商品ページURL (任意)',
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.link),
+                        suffixIcon: _productUrlController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.open_in_new),
+                                onPressed: () async {
+                                  final urlString = _productUrlController.text;
+                                  final uri = Uri.tryParse(urlString);
+                                  if (uri != null && await canLaunchUrl(uri)) {
+                                    await launchUrl(
+                                      uri,
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  } else {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('無効なURLです'),
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                              )
+                            : null,
+                      ),
+                      keyboardType: TextInputType.url,
+                      onChanged: (value) {
+                        setState(() {}); // Rebuild to substring suffix icon
                       },
                     ),
                     const SizedBox(height: 16),

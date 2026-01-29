@@ -11,6 +11,7 @@ class Donation {
   final String id;
   final String municipality;
   final String productName;
+  final String? productUrl;
   final int amount;
   final DateTime date;
   final String? note;
@@ -20,6 +21,7 @@ class Donation {
     required this.id,
     required this.municipality,
     required this.productName,
+    this.productUrl,
     required this.amount,
     required this.date,
     this.note,
@@ -32,6 +34,7 @@ class Donation {
       id: doc.id,
       municipality: data['municipality'] ?? '',
       productName: data['productName'] ?? '',
+      productUrl: data['productUrl'],
       amount: data['amount'] ?? 0,
       date: (data['date'] as Timestamp).toDate(),
       note: data['note'],
@@ -46,6 +49,7 @@ class Donation {
     return {
       'municipality': municipality,
       'productName': productName,
+      'productUrl': productUrl,
       'amount': amount,
       'date': Timestamp.fromDate(date),
       'note': note,
@@ -57,6 +61,7 @@ class Donation {
     String? id,
     String? municipality,
     String? productName,
+    String? productUrl,
     int? amount,
     DateTime? date,
     String? note,
@@ -66,6 +71,7 @@ class Donation {
       id: id ?? this.id,
       municipality: municipality ?? this.municipality,
       productName: productName ?? this.productName,
+      productUrl: productUrl ?? this.productUrl,
       amount: amount ?? this.amount,
       date: date ?? this.date,
       note: note ?? this.note,
