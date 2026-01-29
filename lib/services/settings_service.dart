@@ -6,8 +6,8 @@ class SettingsService with ChangeNotifier {
   static const String _incomeKey = 'income_amount';
   static const String _familyStructureKey = 'family_structure';
 
-  // Default max amount is 80,000 yen
-  int _maxDonationAmount = 80000;
+  // Default max amount is 0 yen
+  int _maxDonationAmount = 0;
   int? _income;
   String? _familyStructure;
 
@@ -21,7 +21,7 @@ class SettingsService with ChangeNotifier {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    _maxDonationAmount = prefs.getInt(_maxDonationAmountKey) ?? 80000;
+    _maxDonationAmount = prefs.getInt(_maxDonationAmountKey) ?? 0;
     _income = prefs.getInt(_incomeKey);
     _familyStructure = prefs.getString(_familyStructureKey);
     notifyListeners();

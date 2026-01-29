@@ -165,8 +165,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () => _runSimulation(context),
               child: const Text('計算する'),
             ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => _showCalculationInfoDialog(context),
+              child: const Text(
+                '計算の根拠・方法',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showCalculationInfoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('計算の根拠について'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '本シミュレーターの算出額は、総務省が公開している「全額控除されるふるさと納税額（年間上限）の目安」を基準としています。',
+                style: TextStyle(height: 1.5),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '【計算方法】',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                '総務省の目安表にある年収ごとの上限額を参照し、表にない年収の場合は、前後の値を用いて按分（補間）計算を行っています。',
+                style: TextStyle(height: 1.5),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ご注意',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      '実際の控除上限額は、お住まいの地域、医療費控除や住宅ローン控除の有無、その他の控除状況により異なります。\n正確な金額については、お住まいの自治体や税理士にご確認ください。',
+                      style: TextStyle(fontSize: 12, height: 1.4),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('閉じる'),
+          ),
+        ],
       ),
     );
   }
