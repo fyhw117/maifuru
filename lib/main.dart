@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Maifuru',
+      title: 'まいふる',
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(Brightness.light),
       darkTheme: _buildTheme(Brightness.dark),
@@ -60,7 +60,7 @@ class MyApp extends StatelessWidget {
     );
 
     return baseTheme.copyWith(
-      textTheme: GoogleFonts.notoSansJpTextTheme(baseTheme.textTheme),
+      textTheme: GoogleFonts.mPlusRounded1cTextTheme(baseTheme.textTheme),
       appBarTheme: baseTheme.appBarTheme.copyWith(
         centerTitle: false,
         backgroundColor: baseTheme.colorScheme.primary,
