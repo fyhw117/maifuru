@@ -55,13 +55,8 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
               .where((d) => d.date.year == _selectedYear)
               .toList();
 
-          // Sort: Pending first, then by date descending
-          displayDonations.sort((a, b) {
-            if (a.status == b.status) return b.date.compareTo(a.date);
-            if (a.status == OneStopStatus.pending) return -1;
-            if (b.status == OneStopStatus.pending) return 1;
-            return b.date.compareTo(a.date);
-          });
+          // Sort: by date descending
+          displayDonations.sort((a, b) => b.date.compareTo(a.date));
 
           return Column(
             children: [
