@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,41 +11,63 @@ class SettingsService with ChangeNotifier {
   int _maxDonationAmount = 0;
   int? _income;
   String? _familyStructure;
+  String? _userId;
 
   int get maxDonationAmount => _maxDonationAmount;
   int? get income => _income;
   String? get familyStructure => _familyStructure;
 
   SettingsService() {
-    _loadSettings();
+    // Listen to authentication state changes
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      _userId = user?.uid;
+      _loadSettings();
+    });
   }
 
   Future<void> _loadSettings() async {
+    // If no user is logged in, reset settings to defaults
+    if (_userId == null) {
+      _maxDonationAmount = 0;
+      _income = null;
+      _familyStructure = null;
+      notifyListeners();
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
-    _maxDonationAmount = prefs.getInt(_maxDonationAmountKey) ?? 0;
-    _income = prefs.getInt(_incomeKey);
-    _familyStructure = prefs.getString(_familyStructureKey);
+    final prefix = '${_userId}_';
+
+    _maxDonationAmount = prefs.getInt('$prefix$_maxDonationAmountKey') ?? 0;
+    _income = prefs.getInt('$prefix$_incomeKey');
+    _familyStructure = prefs.getString('$prefix$_familyStructureKey');
     notifyListeners();
   }
 
   Future<void> setMaxDonationAmount(int amount) async {
     _maxDonationAmount = amount;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_maxDonationAmountKey, amount);
+    if (_userId != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('${_userId}_$_maxDonationAmountKey', amount);
+    }
     notifyListeners();
   }
 
   Future<void> setIncome(int value) async {
     _income = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_incomeKey, value);
+    if (_userId != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('${_userId}_$_incomeKey', value);
+    }
     notifyListeners();
   }
 
   Future<void> setFamilyStructure(String value) async {
     _familyStructure = value;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_familyStructureKey, value);
+    if (_userId != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('${_userId}_$_familyStructureKey', value);
+    }
     notifyListeners();
   }
 
