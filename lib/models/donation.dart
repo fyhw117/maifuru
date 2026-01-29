@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum OneStopStatus {
+  waiting, // 書類待ち
   pending, // 未着手
-  sent, // 送付済
   completed, // 完了
-  notRequired, // 不要
+  notRequired, // 対象外
 }
 
 class Donation {

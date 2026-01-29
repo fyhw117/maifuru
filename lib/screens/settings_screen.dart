@@ -15,27 +15,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _incomeController = TextEditingController();
   String? _selectedFamilyStructure;
 
+  SettingsService? _settingsService;
+
   @override
-  void initState() {
-    super.initState();
-    // Initialize values from settings
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final settings = context.read<SettingsService>();
-      if (settings.income != null) {
-        _incomeController.text = settings.income.toString();
-      }
-      if (settings.familyStructure != null) {
-        setState(() {
-          _selectedFamilyStructure = settings.familyStructure;
-        });
-      }
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newSettings = context.read<SettingsService>();
+    if (_settingsService != newSettings) {
+      _settingsService?.removeListener(_updateFromSettings);
+      _settingsService = newSettings;
+      _settingsService?.addListener(_updateFromSettings);
+      _updateFromSettings();
+    }
   }
 
   @override
   void dispose() {
+    _settingsService?.removeListener(_updateFromSettings);
     _incomeController.dispose();
     super.dispose();
+  }
+
+  void _updateFromSettings() {
+    if (_settingsService == null) return;
+    final income = _settingsService!.income;
+    final familyStructure = _settingsService!.familyStructure;
+
+    // Only update text controller if the value has changed significantly
+    // to avoid messing with cursor position if the user is typing,
+    // though this method is called primarily on load or external change.
+    if (income != null) {
+      final currentText = _incomeController.text;
+      final currentIncome = int.tryParse(currentText);
+      if (currentIncome != income) {
+        _incomeController.text = income.toString();
+      }
+    }
+
+    if (familyStructure != null &&
+        _selectedFamilyStructure != familyStructure) {
+      setState(() {
+        _selectedFamilyStructure = familyStructure;
+      });
+    }
   }
 
   @override

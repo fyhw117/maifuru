@@ -58,9 +58,9 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
         statusColor = Colors.green;
         statusText = '完了';
         break;
-      case OneStopStatus.sent:
-        statusColor = Colors.blue;
-        statusText = '送付済';
+      case OneStopStatus.waiting:
+        statusColor = Colors.orange;
+        statusText = '書類待ち';
         break;
       case OneStopStatus.notRequired:
         statusColor = Colors.grey;
@@ -68,7 +68,7 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
         break;
       case OneStopStatus.pending:
         statusColor = Theme.of(context).colorScheme.error;
-        statusText = '未完了';
+        statusText = '未着手';
         break;
     }
 
@@ -137,15 +137,17 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
             builder: (context, constraints) {
               return ToggleButtons(
                 isSelected: [
+                  widget.donation.status == OneStopStatus.waiting,
                   widget.donation.status == OneStopStatus.pending,
-                  widget.donation.status == OneStopStatus.sent,
                   widget.donation.status == OneStopStatus.completed,
+                  widget.donation.status == OneStopStatus.notRequired,
                 ],
                 onPressed: (index) {
                   final newStatus = [
+                    OneStopStatus.waiting,
                     OneStopStatus.pending,
-                    OneStopStatus.sent,
                     OneStopStatus.completed,
+                    OneStopStatus.notRequired,
                   ][index];
                   if (newStatus != widget.donation.status) {
                     widget.onStatusChanged(newStatus);
@@ -153,20 +155,25 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
                 },
                 borderRadius: BorderRadius.circular(8),
                 constraints: BoxConstraints.expand(
-                  width: (constraints.maxWidth - 4) / 3,
+                  width: (constraints.maxWidth - 12) / 4,
                   height: 40,
                 ),
                 fillColor: Theme.of(context).colorScheme.primaryContainer,
                 selectedColor: Theme.of(context).colorScheme.onPrimaryContainer,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 textStyle: const TextStyle(
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
                 renderBorder: true,
                 borderColor: Theme.of(context).colorScheme.outlineVariant,
                 selectedBorderColor: Theme.of(context).colorScheme.primary,
-                children: const [Text('未着手'), Text('送付済'), Text('完了')],
+                children: const [
+                  FittedBox(fit: BoxFit.scaleDown, child: Text('書類待ち')),
+                  FittedBox(fit: BoxFit.scaleDown, child: Text('未着手')),
+                  FittedBox(fit: BoxFit.scaleDown, child: Text('完了')),
+                  FittedBox(fit: BoxFit.scaleDown, child: Text('対象外')),
+                ],
               );
             },
           ),
