@@ -38,6 +38,11 @@ class AuthService extends ChangeNotifier {
     );
   }
 
+  // Sign in anonymously
+  Future<UserCredential> signInAnonymously() async {
+    return await _auth.signInAnonymously();
+  }
+
   // Sign out
   Future<void> signOut() async {
     await _auth.signOut();

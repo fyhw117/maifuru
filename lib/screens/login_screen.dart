@@ -53,6 +53,31 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _loginAsGuest() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _authService.signInAnonymously();
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'エラーが発生しました'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   Future<void> _submit() async {
     setState(() {
       _isLoading = true;
@@ -171,6 +196,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         _isLogin ? 'アカウントをお持ちでない方はこちら' : 'すでにアカウントをお持ちの方はこちら',
                       ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: _loginAsGuest,
+                      child: const Text('ゲストとして利用する'),
                     ),
                   ],
                 ),

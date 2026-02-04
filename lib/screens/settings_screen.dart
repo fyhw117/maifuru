@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
@@ -75,8 +76,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionHeader(context, 'アカウント'),
           ListTile(
             leading: const Icon(Icons.logout),
-            title: const Text('ログアウト'),
+            title: Text(
+              FirebaseAuth.instance.currentUser?.isAnonymous == true
+                  ? 'ゲスト利用を終了'
+                  : 'ログアウト',
+            ),
             onTap: () async {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user?.isAnonymous == true) {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('ゲスト利用を終了しますか？'),
+                    content: const Text(
+                      'ゲスト利用を終了すると、現在保存されているデータはすべて削除され、復元することはできません。\n\n本当に終了してもよろしいですか？',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('キャンセル'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.error,
+                        ),
+                        child: const Text('終了する'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed != true) return;
+              }
               await AuthService().signOut();
             },
           ),
