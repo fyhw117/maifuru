@@ -114,7 +114,7 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '寄付日: ${dateFormatter.format(widget.donation.date)}',
+                      '購入日: ${dateFormatter.format(widget.donation.date)}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,

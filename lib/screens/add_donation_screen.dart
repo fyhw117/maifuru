@@ -269,7 +269,7 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
                       onTap: () => _selectDate(context),
                       child: InputDecorator(
                         decoration: const InputDecoration(
-                          labelText: '寄付日',
+                          labelText: '購入日',
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.calendar_today),
                         ),
