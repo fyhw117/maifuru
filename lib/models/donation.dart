@@ -13,7 +13,7 @@ class Donation {
   final String productName;
   final String? productUrl;
   final int amount;
-  final DateTime date;
+  final DateTime? date;
   final String? note;
   final OneStopStatus status;
 
@@ -23,7 +23,7 @@ class Donation {
     required this.productName,
     this.productUrl,
     required this.amount,
-    required this.date,
+    this.date,
     this.note,
     this.status = OneStopStatus.pending,
   });
@@ -36,7 +36,7 @@ class Donation {
       productName: data['productName'] ?? '',
       productUrl: data['productUrl'],
       amount: data['amount'] ?? 0,
-      date: (data['date'] as Timestamp).toDate(),
+      date: (data['date'] as Timestamp?)?.toDate(),
       note: data['note'],
       status: OneStopStatus.values.firstWhere(
         (e) => e.name == (data['status'] ?? 'pending'),
@@ -51,7 +51,7 @@ class Donation {
       'productName': productName,
       'productUrl': productUrl,
       'amount': amount,
-      'date': Timestamp.fromDate(date),
+      'date': date != null ? Timestamp.fromDate(date!) : null,
       'note': note,
       'status': status.name,
     };

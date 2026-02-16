@@ -24,6 +24,8 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
   final _repository = DonationRepository();
   bool _isLoading = false;
 
+  bool _isPurchased = true;
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +35,7 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
       _productNameController.text = widget.donation!.productName;
       _productUrlController.text = widget.donation!.productUrl ?? '';
       _amountController.text = widget.donation!.amount.toString();
+      _isPurchased = widget.donation!.date != null;
     }
   }
 
@@ -74,7 +77,7 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
               ? null
               : _productUrlController.text,
           amount: int.parse(_amountController.text),
-          date: _selectedDate,
+          date: _isPurchased ? _selectedDate : null,
           status: widget.donation?.status ?? OneStopStatus.pending,
         );
 
@@ -265,19 +268,30 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    InkWell(
-                      onTap: () => _selectDate(context),
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: '購入日',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.calendar_today),
-                        ),
-                        child: Text(
-                          DateFormat('yyyy/MM/dd').format(_selectedDate),
+                    SwitchListTile(
+                      title: const Text('購入済み'),
+                      value: _isPurchased,
+                      onChanged: (value) {
+                        setState(() {
+                          _isPurchased = value;
+                        });
+                      },
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    if (_isPurchased)
+                      InkWell(
+                        onTap: () => _selectDate(context),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: '購入日',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.calendar_today),
+                          ),
+                          child: Text(
+                            DateFormat('yyyy/MM/dd').format(_selectedDate),
+                          ),
                         ),
                       ),
-                    ),
                     const SizedBox(height: 32),
                     FilledButton.icon(
                       onPressed: _saveDonation,

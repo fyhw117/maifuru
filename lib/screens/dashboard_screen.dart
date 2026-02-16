@@ -34,7 +34,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final donations = snapshot.data ?? [];
 
           // Get unique years from donations, add current year, sort descending
-          final years = donations.map((d) => d.date.year).toSet();
+          final years = donations
+              .map((d) => d.date?.year ?? DateTime.now().year)
+              .toSet();
           years.add(DateTime.now().year);
           final sortedYears = years.toList()..sort((a, b) => b.compareTo(a));
 
@@ -44,7 +46,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
 
           final displayDonations = donations
-              .where((d) => d.date.year == _selectedYear)
+              .where(
+                (d) => (d.date?.year ?? DateTime.now().year) == _selectedYear,
+              )
               .toList();
 
           final totalAmount = displayDonations.fold<int>(

@@ -39,7 +39,10 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
           }
 
           // Get unique years and sort descending
-          final years = allDonations.map((d) => d.date.year).toSet();
+          // Get unique years and sort descending
+          final years = allDonations
+              .map((d) => d.date?.year ?? DateTime.now().year)
+              .toSet();
           years.add(
             DateTime.now().year,
           ); // Ensure current year is always available
@@ -52,11 +55,18 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
 
           // Filter by selected year
           final displayDonations = allDonations
-              .where((d) => d.date.year == _selectedYear)
+              .where(
+                (d) => (d.date?.year ?? DateTime.now().year) == _selectedYear,
+              )
               .toList();
 
-          // Sort: by date descending
-          displayDonations.sort((a, b) => b.date.compareTo(a.date));
+          // Sort: null dates (未購入) first, then by date descending
+          displayDonations.sort((a, b) {
+            if (a.date == null && b.date == null) return 0;
+            if (a.date == null) return -1;
+            if (b.date == null) return 1;
+            return b.date!.compareTo(a.date!);
+          });
 
           return Column(
             children: [

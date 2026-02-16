@@ -72,7 +72,9 @@ class DonationCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                dateFormatter.format(donation.date),
+                donation.date != null
+                    ? dateFormatter.format(donation.date!)
+                    : '未購入',
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
