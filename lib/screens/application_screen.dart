@@ -68,96 +68,101 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
             return b.date!.compareTo(a.date!);
           });
 
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<int>(
-                          value: _selectedYear,
-                          items: sortedYears.map((year) {
-                            return DropdownMenuItem(
-                              value: year,
-                              child: Text(
-                                '$year年分',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                _selectedYear = value;
-                              });
-                            }
-                          },
-                          icon: const Icon(Icons.arrow_drop_down),
-                          dropdownColor: Theme.of(
+          return GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
                             context,
                           ).colorScheme.surfaceContainerHighest,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontSize: 14,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<int>(
+                            value: _selectedYear,
+                            items: sortedYears.map((year) {
+                              return DropdownMenuItem(
+                                value: year,
+                                child: Text(
+                                  '$year年分',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  _selectedYear = value;
+                                });
+                              }
+                            },
+                            icon: const Icon(Icons.arrow_drop_down),
+                            dropdownColor: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontSize: 14,
+                            ),
+                            isDense: true,
                           ),
-                          isDense: true,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: displayDonations.isEmpty
-                    ? Center(
-                        child: Text(
-                          '$_selectedYear年の寄付記録はありません',
-                          style: const TextStyle(color: Colors.grey),
+                Expanded(
+                  child: displayDonations.isEmpty
+                      ? Center(
+                          child: Text(
+                            '$_selectedYear年の寄付記録はありません',
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      : ListView.separated(
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          itemCount: displayDonations.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            final donation = displayDonations[index];
+                            return ApplicationStatusCard(
+                              donation: donation,
+                              onStatusChanged: (newStatus) {
+                                repository.updateDonation(
+                                  donation.copyWith(status: newStatus),
+                                );
+                              },
+                              onNoteChanged: (newNote) {
+                                // Debounce could be added here for optimization if needed
+                                repository.updateDonation(
+                                  donation.copyWith(note: newNote),
+                                );
+                              },
+                            );
+                          },
                         ),
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                        itemCount: displayDonations.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final donation = displayDonations[index];
-                          return ApplicationStatusCard(
-                            donation: donation,
-                            onStatusChanged: (newStatus) {
-                              repository.updateDonation(
-                                donation.copyWith(status: newStatus),
-                              );
-                            },
-                            onNoteChanged: (newNote) {
-                              // Debounce could be added here for optimization if needed
-                              repository.updateDonation(
-                                donation.copyWith(note: newNote),
-                              );
-                            },
-                          );
-                        },
-                      ),
-              ),
-            ],
+                ),
+              ],
+            ),
           );
         },
       ),
