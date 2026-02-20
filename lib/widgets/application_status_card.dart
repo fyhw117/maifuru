@@ -54,6 +54,10 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
     Color statusColor;
     String statusText;
     switch (widget.donation.status) {
+      case OneStopStatus.notPurchased:
+        statusColor = Theme.of(context).colorScheme.error;
+        statusText = '未購入';
+        break;
       case OneStopStatus.completed:
         statusColor = Colors.green;
         statusText = '完了';
@@ -67,8 +71,8 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
         statusText = '対象外';
         break;
       case OneStopStatus.pending:
-        statusColor = Theme.of(context).colorScheme.error;
-        statusText = '未着手';
+        statusColor = Colors.blue;
+        statusText = '未申請';
         break;
     }
 
@@ -151,15 +155,17 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
             builder: (context, constraints) {
               return ToggleButtons(
                 isSelected: [
-                  widget.donation.status == OneStopStatus.waiting,
+                  widget.donation.status == OneStopStatus.notPurchased,
                   widget.donation.status == OneStopStatus.pending,
+                  widget.donation.status == OneStopStatus.waiting,
                   widget.donation.status == OneStopStatus.completed,
                   widget.donation.status == OneStopStatus.notRequired,
                 ],
                 onPressed: (index) {
                   final newStatus = [
-                    OneStopStatus.waiting,
+                    OneStopStatus.notPurchased,
                     OneStopStatus.pending,
+                    OneStopStatus.waiting,
                     OneStopStatus.completed,
                     OneStopStatus.notRequired,
                   ][index];
@@ -169,7 +175,7 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
                 },
                 borderRadius: BorderRadius.circular(8),
                 constraints: BoxConstraints.expand(
-                  width: (constraints.maxWidth - 12) / 4,
+                  width: (constraints.maxWidth - 16) / 5,
                   height: 40,
                 ),
                 fillColor: Theme.of(context).colorScheme.primaryContainer,
@@ -183,8 +189,9 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
                 borderColor: Theme.of(context).colorScheme.outlineVariant,
                 selectedBorderColor: Theme.of(context).colorScheme.primary,
                 children: const [
+                  FittedBox(fit: BoxFit.scaleDown, child: Text('未購入')),
+                  FittedBox(fit: BoxFit.scaleDown, child: Text('未申請')),
                   FittedBox(fit: BoxFit.scaleDown, child: Text('書類待ち')),
-                  FittedBox(fit: BoxFit.scaleDown, child: Text('未着手')),
                   FittedBox(fit: BoxFit.scaleDown, child: Text('完了')),
                   FittedBox(fit: BoxFit.scaleDown, child: Text('対象外')),
                 ],

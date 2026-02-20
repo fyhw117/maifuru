@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum OneStopStatus {
+  notPurchased, // 未購入
   waiting, // 書類待ち
-  pending, // 未着手
+  pending, // 未申請
   completed, // 完了
   notRequired, // 対象外
 }
