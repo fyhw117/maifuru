@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/donation.dart';
 
 class ApplicationStatusCard extends StatefulWidget {
   final Donation donation;
   final ValueChanged<OneStopStatus> onStatusChanged;
   final ValueChanged<String>? onNoteChanged;
+  final ValueChanged<String>? onApplicationUrlChanged;
 
   const ApplicationStatusCard({
     super.key,
     required this.donation,
     required this.onStatusChanged,
     this.onNoteChanged,
+    this.onApplicationUrlChanged,
   });
 
   @override
@@ -215,8 +218,115 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
               widget.onNoteChanged?.call(value);
             },
           ),
+          const SizedBox(height: 8),
+          _buildUrlSection(context),
         ],
       ),
+    );
+  }
+
+  Widget _buildUrlSection(BuildContext context) {
+    final url = widget.donation.applicationUrl;
+    if (url == null || url.isEmpty) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: () => _showUrlEditDialog(context),
+          icon: const Icon(Icons.link_rounded, size: 16),
+          label: const Text('申請用URLを登録', style: TextStyle(fontSize: 12)),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: FilledButton.tonalIcon(
+            onPressed: () => _launchUrl(url),
+            icon: const Icon(Icons.open_in_new_rounded, size: 16),
+            label: const Text('申請サイトを開く', style: TextStyle(fontSize: 12)),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              minimumSize: const Size.fromHeight(36),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          onPressed: () => _showUrlEditDialog(context),
+          icon: const Icon(Icons.edit_outlined, size: 20),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          tooltip: 'URLを編集',
+          style: IconButton.styleFrom(
+            backgroundColor: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _launchUrl(String urlString) async {
+    final uri = Uri.tryParse(urlString);
+    if (uri != null && await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('URLを開けませんでした')));
+      }
+    }
+  }
+
+  void _showUrlEditDialog(BuildContext context) {
+    final controller = TextEditingController(
+      text: widget.donation.applicationUrl,
+    );
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            '申請用URL',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: 'https://...',
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+              isDense: true,
+            ),
+            keyboardType: TextInputType.url,
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('キャンセル'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(context);
+                widget.onApplicationUrlChanged?.call(controller.text.trim());
+              },
+              child: const Text('保存'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

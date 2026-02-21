@@ -157,6 +157,11 @@ class _ApplicationScreenState extends State<ApplicationScreen> {
                                   donation.copyWith(note: newNote),
                                 );
                               },
+                              onApplicationUrlChanged: (newUrl) {
+                                repository.updateDonation(
+                                  donation.copyWith(applicationUrl: newUrl),
+                                );
+                              },
                             );
                           },
                         ),
