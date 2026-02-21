@@ -111,11 +111,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               await AuthService().signOut();
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.delete_forever, color: Colors.red),
-            title: const Text('アカウント削除', style: TextStyle(color: Colors.red)),
-            onTap: () => _showDeleteAccountDialog(context),
-          ),
+          if (FirebaseAuth.instance.currentUser?.isAnonymous != true)
+            ListTile(
+              leading: const Icon(Icons.delete_forever, color: Colors.red),
+              title: const Text('アカウント削除', style: TextStyle(color: Colors.red)),
+              onTap: () => _showDeleteAccountDialog(context),
+            ),
         ],
       ),
     );
