@@ -229,7 +229,7 @@ class _AddDonationScreenState extends State<AddDonationScreen> {
                                       mode: LaunchMode.externalApplication,
                                     );
                                   } else {
-                                    if (mounted) {
+                                    if (context.mounted) {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(

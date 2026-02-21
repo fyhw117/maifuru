@@ -137,8 +137,9 @@ class SettingsService with ChangeNotifier {
 
     // Extrapolation or Exact Match
     if (lowerKey == null) return 0;
-    if (upperKey == null)
+    if (upperKey == null) {
       return (table[lowerKey]! * 10000).round(); // Above max range
+    }
     if (lowerKey == upperKey) return (table[lowerKey]! * 10000).round();
 
     // Interpolation

@@ -85,11 +85,13 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+          color: Theme.of(
+            context,
+          ).colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -139,7 +141,7 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -265,7 +267,7 @@ class _ApplicationStatusCardState extends State<ApplicationStatusCard> {
           style: IconButton.styleFrom(
             backgroundColor: Theme.of(
               context,
-            ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           ),
         ),
       ],

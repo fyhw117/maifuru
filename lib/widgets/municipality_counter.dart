@@ -20,7 +20,9 @@ class MunicipalityCounter extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+          color: Theme.of(
+            context,
+          ).colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
       ),
       child: Row(
@@ -72,7 +74,9 @@ class MunicipalityCounter extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: (isSafe ? Colors.green : Colors.orange).withOpacity(0.1),
+              color: (isSafe ? Colors.green : Colors.orange).withValues(
+                alpha: 0.1,
+              ),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(

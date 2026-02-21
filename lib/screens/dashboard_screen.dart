@@ -196,7 +196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             border: Border.all(
               color: Theme.of(
                 context,
-              ).colorScheme.outlineVariant.withOpacity(0.5),
+              ).colorScheme.outlineVariant.withValues(alpha: 0.5),
             ),
           ),
           child: Row(
@@ -206,7 +206,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 decoration: BoxDecoration(
                   color: Theme.of(
                     context,
-                  ).colorScheme.primaryContainer.withOpacity(0.5),
+                  ).colorScheme.primaryContainer.withValues(alpha: 0.5),
                   shape: BoxShape.circle,
                 ),
                 child: Text(

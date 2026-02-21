@@ -56,7 +56,7 @@ class SummaryCard extends StatelessWidget {
                 (isExceeded
                         ? const Color(0xFFC62828)
                         : Theme.of(context).colorScheme.primary)
-                    .withOpacity(0.3),
+                    .withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -71,7 +71,7 @@ class SummaryCard extends StatelessWidget {
               Text(
                 '$year年の寄付状況',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -115,7 +115,7 @@ class SummaryCard extends StatelessWidget {
                 Text(
                   '/ ${currencyFormatter.format(maxAmount)}',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     height: 1.4,
@@ -133,7 +133,9 @@ class SummaryCard extends StatelessWidget {
                   children: [
                     Text(
                       isExceeded ? '超過額' : '残り枠',
-                      style: TextStyle(color: Colors.white.withOpacity(0.9)),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                      ),
                     ),
                     Text(
                       isExceeded

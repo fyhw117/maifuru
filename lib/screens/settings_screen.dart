@@ -140,7 +140,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       elevation: 0,
-      color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.4),
+      color: Theme.of(
+        context,
+      ).colorScheme.secondaryContainer.withValues(alpha: 0.4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -174,7 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _selectedFamilyStructure,
+              initialValue: _selectedFamilyStructure,
               decoration: const InputDecoration(
                 labelText: '家族構成',
                 border: OutlineInputBorder(),
